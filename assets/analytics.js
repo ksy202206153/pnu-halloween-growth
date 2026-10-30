@@ -4,8 +4,10 @@ let session = sessionStorage.getItem('pnu_session') || uuid();
 sessionStorage.setItem('pnu_session', session);
 let visitor = localStorage.getItem('pnu_visitor');
 export const configured = () => Boolean(config.supabaseUrl && config.supabaseAnonKey);
-export async function rpc(name, data, token = config.supabaseAnonKey) {
-  const res = await fetch(`${config.supabaseUrl}/rest/v1/rpc/${name}`, { method:'POST', headers:{'Content-Type':'application/json', apikey:config.supabaseAnonKey, Authorization:`Bearer ${token}`}, body:JSON.stringify(data)});
+export async function rpc(name, data, token) {
+  const headers = {'Content-Type':'application/json', apikey:config.supabaseAnonKey};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${config.supabaseUrl}/rest/v1/rpc/${name}`, { method:'POST', headers, body:JSON.stringify(data)});
   if (!res.ok) throw new Error(`서버 요청 실패 (${res.status})`);
   return res.json();
 }
@@ -29,5 +31,5 @@ export async function flush() {
   finally { busy = false; }
 }
 setInterval(flush, 5000);
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && configured() && queue.length && localStorage.getItem('pnu_consent') === 'yes') fetch(`${config.supabaseUrl}/rest/v1/rpc/collect_events`, {method:'POST',headers:{'Content-Type':'application/json',apikey:config.supabaseAnonKey,Authorization:`Bearer ${config.supabaseAnonKey}`},body:JSON.stringify({p_events:queue.slice(0,50)}),keepalive:true}).catch(()=>{}); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && configured() && queue.length && localStorage.getItem('pnu_consent') === 'yes') fetch(`${config.supabaseUrl}/rest/v1/rpc/collect_events`, {method:'POST',headers:{'Content-Type':'application/json',apikey:config.supabaseAnonKey},body:JSON.stringify({p_events:queue.slice(0,50)}),keepalive:true}).catch(()=>{}); });
 export function resetConsent() { queue=[]; stages.clear(); localStorage.removeItem('pnu_visitor'); visitor=null; }
