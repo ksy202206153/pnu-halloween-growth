@@ -1,5 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 const elements=new Map();
 const element=selector=>{if(!elements.has(selector))elements.set(selector,{value:'',textContent:'',disabled:false,reportValidity:()=>true});return elements.get(selector);};
 globalThis.document={querySelector:element,addEventListener(){}};
@@ -11,6 +12,7 @@ const originalInterval=globalThis.setInterval;globalThis.setInterval=()=>0;
 let requests=[];globalThis.fetch=async(url,options)=>{requests.push({url,options});return {ok:true,json:async()=>({user:{id:'example'}})};};
 await import('./admin.js');globalThis.setInterval=originalInterval;
 test('signup validates password and sends credentials only to Supabase Auth',async()=>{
+ const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');assert.match(html,/id="signup"/);assert.match(html,/id="login-form"/);
  element('#email').value='admin@example.com';element('#password').value='short';
  await element('#signup').onclick();assert.equal(requests.length,0);
  element('#password').value='test-password-only';await element('#signup').onclick();assert.equal(requests.length,1);
