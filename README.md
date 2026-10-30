@@ -13,6 +13,8 @@
 3. Supabase Auth에 운영자 계정을 만든 뒤 SQL로 권한을 부여합니다: `insert into public.event_admins(user_id) values ('운영자 Auth UUID');`
 4. `admin.html`에서 로그인해 집계합니다. 토큰은 메모리에만 보관합니다.
 
+현재 연결 프로젝트는 `ssmtsuhtjnkvtlvxakqb`입니다. `supabase/admin-bootstrap.sql`을 적용해 지정한 운영자 이메일 `ksy31098046@gmail.com`의 인증 완료 시 자동으로 권한을 부여하도록 설정했습니다. 운영자는 `admin.html`에서 계정을 생성하고 메일 인증 후 로그인합니다. Supabase Site URL은 배포된 `admin.html`로 설정되어 있습니다. 지정 이메일 변경·인증 해제 시 자동 부여한 권한을 회수합니다.
+
 ## 측정 정의
 
 - 분석 동의 후 page_view → event_view(참여 안내 30% 노출) → registration_start → registration_complete(서버 등록 성공)를 세션별 순서로 집계합니다. 동일 단계 반복은 세션 단위로 중복 제거합니다.

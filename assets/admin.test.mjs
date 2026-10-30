@@ -1,0 +1,19 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+const elements=new Map();
+const element=selector=>{if(!elements.has(selector))elements.set(selector,{value:'',textContent:'',disabled:false,reportValidity:()=>true});return elements.get(selector);};
+globalThis.document={querySelector:element,addEventListener(){}};
+const storage=()=>({getItem:()=>null,setItem(){},removeItem(){}});
+globalThis.localStorage=storage();globalThis.sessionStorage=storage();
+globalThis.window={APP_CONFIG:{supabaseUrl:'https://example.supabase.co',supabaseAnonKey:'public-test-key',eventId:'pnu-halloween-2026'}};
+globalThis.location={hash:'',pathname:'/pnu-halloween-growth/admin.html',search:'',href:'https://example.github.io/pnu-halloween-growth/admin.html'};
+const originalInterval=globalThis.setInterval;globalThis.setInterval=()=>0;
+let requests=[];globalThis.fetch=async(url,options)=>{requests.push({url,options});return {ok:true,json:async()=>({user:{id:'example'}})};};
+await import('./admin.js');globalThis.setInterval=originalInterval;
+test('signup validates password and sends credentials only to Supabase Auth',async()=>{
+ element('#email').value='admin@example.com';element('#password').value='short';
+ await element('#signup').onclick();assert.equal(requests.length,0);
+ element('#password').value='test-password-only';await element('#signup').onclick();assert.equal(requests.length,1);
+ const request=requests[0];assert.equal(new URL(request.url).searchParams.get('redirect_to'),'https://example.github.io/pnu-halloween-growth/admin.html');
+ assert.equal(JSON.parse(request.options.body).email,'admin@example.com');assert.equal(element('#password').value,'');assert.equal(element('#signup').disabled,false);assert.match(element('#status').textContent,/메일함/);
+});
