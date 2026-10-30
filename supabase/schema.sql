@@ -21,7 +21,9 @@ revoke all on public.event_admins,public.growth_events,public.event_interests,pu
 
 create or replace function public.collect_events(p_events jsonb) returns jsonb language plpgsql security definer set search_path='' as $$
 begin
- if jsonb_typeof(p_events)<>'array' or jsonb_array_length(p_events)>50 then raise exception 'Invalid batch'; end if;
+ if p_events is null or jsonb_typeof(p_events)<>'array' then raise exception 'Invalid batch'; end if;
+ if jsonb_array_length(p_events)>50 then raise exception 'Invalid batch'; end if;
+ if exists(select 1 from jsonb_array_elements(p_events) x where (x->>'event_id') is distinct from 'pnu-halloween-2026') then raise exception 'Unknown event'; end if;
  insert into public.growth_events(id,event_id,visitor_id,session_id,name,button,path,utm_source,utm_medium,utm_campaign)
  select (x->>'id')::uuid,left(x->>'event_id',80),(x->>'visitor_id')::uuid,(x->>'session_id')::uuid,x->>'name',left(x->>'button',80),left(x->>'path',200),left(x->>'utm_source',80),left(x->>'utm_medium',80),left(x->>'utm_campaign',80)
  from jsonb_array_elements(p_events) x on conflict(id) do nothing;

@@ -23,7 +23,8 @@ jobs:
         run: |
           mkdir _site
           cp index.html admin.html _site/
-          cp -r assets _site/
+          mkdir _site/assets
+          cp assets/*.js assets/*.css _site/assets/
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

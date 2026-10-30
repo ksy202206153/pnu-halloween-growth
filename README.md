@@ -30,4 +30,4 @@
 
 ## 검증
 
-`node --check assets/app.js`, `node --check assets/analytics.js`, `node --check assets/admin.js`. 실제 수집·운영자 인증·SQL 실행은 Supabase 설정 후 확인해야 합니다.
+`node --check assets/app.js`, `node --check assets/analytics.js`, `node --check assets/admin.js`, `node --test assets/analytics.test.mjs`. 동의 전 미전송, 단계 중복 방지, 실패 재시도 ID 유지, 동의 철회 큐 삭제를 검증합니다. 실제 수집·운영자 인증·SQL 실행은 Supabase 설정 후 확인해야 합니다.

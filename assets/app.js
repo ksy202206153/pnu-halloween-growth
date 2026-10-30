@@ -2,7 +2,7 @@ import {track,stage,configured,rpc,resetConsent} from './analytics.js';
 const $ = s=>document.querySelector(s);
 const modal=$('#modal');
 const toast=message=>{ $('#toast').textContent=message;$('#toast').style.display='block';setTimeout(()=>$('#toast').style.display='none',4000); };
-function begin(){stage('page_view'); if (location.hash==='#tickets') stage('event_view');}
+function begin(){stage('page_view');const r=$('#tickets').getBoundingClientRect();if(Math.max(0,Math.min(r.bottom,innerHeight)-Math.max(r.top,0))>=Math.min(r.height,innerHeight)*0.3)stage('event_view');}
 $('#consent').hidden=localStorage.getItem('pnu_consent')!==null;
 $('#accept').onclick=()=>{localStorage.setItem('pnu_consent','yes');$('#consent').hidden=true;begin();};
 $('#decline').onclick=()=>{localStorage.setItem('pnu_consent','no');resetConsent();$('#consent').hidden=true;};
